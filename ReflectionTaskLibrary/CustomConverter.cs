@@ -1,8 +1,10 @@
 ﻿using ReflectionTask;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace ReflectionTaskLibrary
@@ -12,18 +14,14 @@ namespace ReflectionTaskLibrary
         private int spacer = -1;
         public string Serialize(object model)
         {
-            string result = "";
-            if(model.GetType() == typeof(string)
-                || model.GetType() == typeof(DayOfWeek)
-                || model.GetType() == typeof(int)
-                || model.GetType() == typeof(double))
-            {
-               return SerializeString(model);
-            }
+                      
+            var hastype = model.GetType().GetProperties().Count() > 2;
 
-            var leType = model.GetType();
-            Console.WriteLine(leType.Name);
-            result = Serialize2(model);
+            if (!hastype)
+            {
+                return SerializeString(model);
+            }
+            string result = Serialize2(model);
             result = result.Substring(0, result.Length - 2);
             return result;
         }
