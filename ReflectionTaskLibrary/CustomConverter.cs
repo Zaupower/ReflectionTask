@@ -21,7 +21,7 @@ namespace ReflectionTaskLibrary
             {
                 return SerializeString(model);
             }
-            string result = Serialize2(model);
+            string result = SerializeComplexObject(model);
             result = result.Substring(0, result.Length - 2);
             return result;
         }
@@ -31,7 +31,7 @@ namespace ReflectionTaskLibrary
             return model.ToString();
         }
 
-        public string Serialize2(object model)
+        public string SerializeComplexObject(object model)
         {
             IncrementSpacer();
 
@@ -61,7 +61,7 @@ namespace ReflectionTaskLibrary
                         // If the property value is a complex entity with nested fields, serialize them recursively
                         if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
                         {
-                            sb.Append(Serialize2(property.GetValue(model)));
+                            sb.Append(SerializeComplexObject(property.GetValue(model)));
                         }
                     }
                 }
