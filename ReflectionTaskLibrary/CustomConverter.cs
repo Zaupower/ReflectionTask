@@ -13,17 +13,14 @@ namespace ReflectionTaskLibrary
     {
         private int spacer = -1;
         public string Serialize(object model)
-        {
-                      
-            var hasMoreThanTwoProperties = model.GetType().GetProperties().Count() > 2;
+        {       
+            bool hasMoreThanTwoProperties = model.GetType().GetProperties().Count() > 2;
 
             if (!hasMoreThanTwoProperties)
             {
                 return SerializeString(model);
             }
-            string result = SerializeComplexObject(model);
-            result = result.Substring(0, result.Length - 2);
-            return result;
+            return SerializeComplexObject(model)[..^2];//remove last "/n" added in recursive method 
         }
 
         private string SerializeString(object model)
@@ -33,11 +30,12 @@ namespace ReflectionTaskLibrary
 
         public string SerializeComplexObject(object model)
         {
+            StringBuilder sb = new StringBuilder();
             IncrementSpacer();
 
-            StringBuilder sb = new StringBuilder();
             sb.Append(GetSpacer() + "[section.begin]");
             sb.AppendLine();
+
             // Get all properties in the model
             var properties = model.GetType().GetProperties();
 
@@ -52,16 +50,19 @@ namespace ReflectionTaskLibrary
                     {
                         // Get the Name attribute parameter value
                         string name = string.IsNullOrEmpty(customSerializeAttributes[0].Name) ? property.Name : customSerializeAttributes[0].Name;
+                        
                         object value = property.GetValue(model);
 
                         // Serialize the property value
                         if(value != null)
-                            sb.AppendFormat(GetSpacer() + "{0} = {1}", name, property.PropertyType.IsClass && property.PropertyType != typeof(string) ? null : value);
+                            sb.AppendFormat(GetSpacer() + "{0} = {1}", name, property.PropertyType.IsClass && property.PropertyType != typeof(string) ? "" : value);
+                        
                         sb.AppendLine();
-                        // If the property value is a complex entity with nested fields, serialize them recursively
+
+                        // If the property value is a complex entity
                         if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
                         {
-                            sb.Append(SerializeComplexObject(property.GetValue(model)));
+                            sb.Append(SerializeComplexObject(value));
                         }
                     }
                 }
