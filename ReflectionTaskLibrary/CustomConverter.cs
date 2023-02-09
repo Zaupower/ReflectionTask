@@ -15,9 +15,9 @@ namespace ReflectionTaskLibrary
         public string Serialize(object model)
         {
                       
-            var hastype = model.GetType().GetProperties().Count() > 2;
+            var hasMoreThanTwoProperties = model.GetType().GetProperties().Count() > 2;
 
-            if (!hastype)
+            if (!hasMoreThanTwoProperties)
             {
                 return SerializeString(model);
             }
